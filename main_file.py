@@ -1,7 +1,8 @@
 import pandas as pd
 
 PATH = "trainTwitter.csv"
-SLICE_LEN = 4
+SLICE_LEN = 3
+REGEX = r'[^a-zA-Z@#!\s]+|X{2,}'
 
 
 def read_file(path):
@@ -14,14 +15,18 @@ def create_copy_of_file(file):
 
 
 def slice_the_data_frame(file):
-    return file.iloc[:,0:SLICE_LEN].head()
+    return file.iloc[:,0:SLICE_LEN]
 
 
 def clean_unrecognized_chars(file):
-    file['tweet']= file.tweet.str.replace(r'^[ A-Za-z0-9_@./#!]', '')
+    file['tweet'] = file.tweet.str.replace(REGEX,'')
     return file
+
+
 
 
 file = read_file(PATH)
 file_copy = create_copy_of_file(file)
 sliced_file_without_empty_cols = slice_the_data_frame(file_copy)
+print(sliced_file_without_empty_cols)
+print(clean_unrecognized_chars(sliced_file_without_empty_cols))
