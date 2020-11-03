@@ -7,6 +7,11 @@ PATH = "trainTwitter.csv"
 SLICE_LEN = 3
 REGEX = r'[^a-zA-Z0-9@#!,\'\s]+|X{2,}'
 COLUMN = 'tweet'
+AMOUNT_OF_TASKS = 4
+TASK1 = 0
+TASK2 = 1
+TASK3 = 2
+TASK4 = 3
 
 
 def read_file(path):
@@ -27,41 +32,12 @@ def clean_unrecognized_chars(df):
     return df
 
 
-def count_word_amount(tokenized_data):
-    new_column = creat_numpy_array_in_given_size(len(tokenized_data))
-
-    for index in range(len(tokenized_data)):
-        new_column[index] = len(tokenized_data[index])
-
-    return new_column
-
-
 def get_tokenized_data_with_nltk_tokenizer(df):
     return np.array(df[COLUMN].apply(lambda x: TweetTokenizer().tokenize(x)))
 
 
-def creat_numpy_array_in_given_size(size):
-    return np.arange(size, dtype=np.uint8)
-
-
-def count_amount_of_letters_in_sentence(tokenized_data):
-    new_column = creat_numpy_array_in_given_size(len(tokenized_data))
-
-    for index in range(len(tokenized_data)):
-        new_column[index] = len(' '.join(tokenized_data[index]))
-
-    return new_column
-
-
-def count_avg_size_of_words(tokenized_arr):
-    new_column = creat_numpy_array_in_given_size(len(tokenized_arr))
-
-    for index in range(len(tokenized_arr)):
-        try:
-            new_column[index] = len(''.join(tokenized_arr[index])) / len(tokenized_arr[index])
-        except ZeroDivisionError as e:
-            new_column[index] = 0
-    return new_column
+def creat_numpy_array_in_given_size(size_rows, size_cols=AMOUNT_OF_TASKS):
+    return np.zeros((size_cols, size_rows), dtype=np.uint8)
 
 
 def count_stop_words(df):
@@ -69,22 +45,43 @@ def count_stop_words(df):
     return df['tweet'].str.split().apply(lambda x: len(set(x) & stop_words))
 
 
-def count_numeric_chars(tokenized_arr):
-    new_column = creat_numpy_array_in_given_size(len(tokenized_arr))
-
+def use_tokenized_data_and_perform_operations(tokenized_arr):
+    new_columns = creat_numpy_array_in_given_size(len(tokenized_arr))
     for index in range(len(tokenized_arr)):
-        new_column[index] = len([x for x in tokenized_arr[index] if x.isdigit()])
-        if new_column[index]!=0:
-            print(index)
+        count_word_amount(tokenized_arr, new_columns, index, TASK1)
+        count_amount_of_letters_in_sentence(tokenized_arr, new_columns, index, TASK2)
+        count_avg_size_of_words(tokenized_arr, new_columns, index, TASK3)
+        count_numeric_chars(tokenized_arr, new_columns, index, TASK4)
 
-    return new_column
+    return new_columns
+
+
+def count_amount_of_letters_in_sentence(tokenized_arr, new_columns, index, task):
+    new_columns[task][index] = len(' '.join(tokenized_data[index]))
+
+
+def count_word_amount(tokenized_arr, new_columns, index, task):
+    new_columns[task][index] = len(tokenized_data[index])
+
+
+def count_avg_size_of_words(tokenized_arr, new_columns, index, task):
+    try:
+        new_columns[task][index] = len(''.join(tokenized_arr[index])) / len(tokenized_arr[index])
+    except ZeroDivisionError as e:
+        new_columns[task][index] = 0
+
+
+def count_numeric_chars(tokenized_arr, new_columns, index, task):
+    new_columns[task][index] = len([x for x in tokenized_arr[index] if x.isdigit()])
+
 
 def apply_functions_over_data_frame(data_frame, tokenized_arr):
-    data_frame['word_count'] = count_word_amount(tokenized_arr)
-    data_frame['letters_count'] = count_amount_of_letters_in_sentence(tokenized_arr)
-    data_frame['avg_letter_count'] = count_avg_size_of_words(tokenized_arr)
+    new_cols = use_tokenized_data_and_perform_operations(tokenized_arr)
+    data_frame['word_count'] = new_cols[TASK1]
+    data_frame['letters_count'] = new_cols[TASK2]
+    data_frame['avg_letter_count'] = new_cols[TASK3]
     data_frame['stop_words'] = count_stop_words(data_frame)
-    data_frame['numeric_chars'] = count_numeric_chars(tokenized_arr)
+    data_frame['numeric_chars'] = new_cols[TASK4]
     return data_frame
 
 
