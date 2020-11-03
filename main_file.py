@@ -7,11 +7,12 @@ PATH = "trainTwitter.csv"
 SLICE_LEN = 3
 REGEX = r'[^a-zA-Z0-9@#!,\'\s]+|X{2,}'
 COLUMN = 'tweet'
-AMOUNT_OF_TASKS = 4
+AMOUNT_OF_TASKS = 5
 TASK1 = 0
 TASK2 = 1
 TASK3 = 2
 TASK4 = 3
+TASK5 = 4  # count upper-case words
 
 
 def read_file(path):
@@ -28,7 +29,7 @@ def slice_the_data_frame(df):
 
 
 def clean_unrecognized_chars(df):
-    df['tweet'] = df.tweet.str.replace(REGEX, '')
+    df[COLUMN] = df.tweet.str.replace(REGEX, '')
     return df
 
 
@@ -52,12 +53,16 @@ def use_tokenized_data_and_perform_operations(tokenized_arr):
         count_amount_of_letters_in_sentence(tokenized_arr, new_columns, index, TASK2)
         count_avg_size_of_words(tokenized_arr, new_columns, index, TASK3)
         count_numeric_chars(tokenized_arr, new_columns, index, TASK4)
-
+        count_upper_case_words(tokenized_arr, new_columns, index, TASK5)
     return new_columns
 
 
+def count_upper_case_words(tokenized_arr, new_columns, index, task):
+    new_columns[task][index] = len([x for x in tokenized_arr[index] if x.isupper()])
+
+
 def count_amount_of_letters_in_sentence(tokenized_arr, new_columns, index, task):
-    new_columns[task][index] = len(' '.join(tokenized_data[index]))
+    new_columns[task][index] = len(' '.join(tokenized_arr[index]))
 
 
 def count_word_amount(tokenized_arr, new_columns, index, task):
@@ -82,6 +87,7 @@ def apply_functions_over_data_frame(data_frame, tokenized_arr):
     data_frame['avg_letter_count'] = new_cols[TASK3]
     data_frame['stop_words'] = count_stop_words(data_frame)
     data_frame['numeric_chars'] = new_cols[TASK4]
+    data_frame['upper_cases_words'] = new_cols[TASK5]
     return data_frame
 
 
@@ -91,5 +97,5 @@ sliced_file_without_empty_cols = slice_the_data_frame(file_copy)
 cleaned_file_from_unrecognized_chars = clean_unrecognized_chars(sliced_file_without_empty_cols)
 tokenized_data = get_tokenized_data_with_nltk_tokenizer(cleaned_file_from_unrecognized_chars)
 df = apply_functions_over_data_frame(cleaned_file_from_unrecognized_chars, tokenized_data)
-
+# pd.set_option('display.max_rows', df.shape[0]+1)
 print(df)
