@@ -69,15 +69,15 @@ def count_stop_words(df):
     return df['tweet'].str.split().apply(lambda x: len(set(x) & stop_words))
 
 
-# def count_numeric_chars(tokenized_arr):
-#     new_column = creat_numpy_array_in_given_size(len(tokenized_arr))
-#
-#     for index in range(len(tokenized_arr)):
-#         new_column[index] = len([x for x in tokenized_arr[index] if x.isdigit()])
-#         if new_column[index]!=0:
-#             print(index)
-#
-#     return new_column
+def count_numeric_chars(tokenized_arr):
+    new_column = creat_numpy_array_in_given_size(len(tokenized_arr))
+
+    for index in range(len(tokenized_arr)):
+        new_column[index] = len([x for x in tokenized_arr[index] if x.isdigit()])
+        if new_column[index]!=0:
+            print(index)
+
+    return new_column
 
 def apply_functions_over_data_frame(data_frame, tokenized_arr):
     data_frame['word_count'] = count_word_amount(tokenized_arr)
