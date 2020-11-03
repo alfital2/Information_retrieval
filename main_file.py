@@ -18,11 +18,10 @@ def slice_the_data_frame(file):
 
 
 def clean_unrecognized_chars(file):
-    return file.tweet.str.replace(r'[^a-zA-Z\s]+|X{2,}', '')
+    file['tweet']= file.tweet.str.replace(r'^[ A-Za-z0-9_@./#!]', '')
+    return file
 
 
 file = read_file(PATH)
 file_copy = create_copy_of_file(file)
 sliced_file_without_empty_cols = slice_the_data_frame(file_copy)
-print(sliced_file_without_empty_cols)
-print(clean_unrecognized_chars(sliced_file_without_empty_cols))
