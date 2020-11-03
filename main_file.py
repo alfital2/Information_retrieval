@@ -5,7 +5,7 @@ from nltk.corpus import stopwords
 
 PATH = "trainTwitter.csv"
 SLICE_LEN = 3
-REGEX = r'[^a-zA-Z@#!,\'\s]+|X{2,}'
+REGEX = r'[^a-zA-Z0-9@#!,\'\s]+|X{2,}'
 COLUMN = 'tweet'
 
 
@@ -69,13 +69,23 @@ def count_stop_words(df):
     return df['tweet'].str.split().apply(lambda x: len(set(x) & stop_words))
 
 
+# def count_numeric_chars(tokenized_arr):
+#     new_column = creat_numpy_array_in_given_size(len(tokenized_arr))
+#
+#     for index in range(len(tokenized_arr)):
+#         new_column[index] = len([x for x in tokenized_arr[index] if x.isdigit()])
+#         if new_column[index]!=0:
+#             print(index)
+#
+#     return new_column
 
-def apply_functions_over_data_frame(df, tokenized_arr):
-    df['word_count'] = count_word_amount(tokenized_arr)
-    df['letters_count'] = count_amount_of_letters_in_sentence(tokenized_arr)
-    df['avg_letter_count'] = count_avg_size_of_words(tokenized_arr)
-    df['stop_words'] = count_stop_words(df)
-    return df
+def apply_functions_over_data_frame(data_frame, tokenized_arr):
+    data_frame['word_count'] = count_word_amount(tokenized_arr)
+    data_frame['letters_count'] = count_amount_of_letters_in_sentence(tokenized_arr)
+    data_frame['avg_letter_count'] = count_avg_size_of_words(tokenized_arr)
+    data_frame['stop_words'] = count_stop_words(data_frame)
+    data_frame['numeric_chars'] = count_numeric_chars(tokenized_arr)
+    return data_frame
 
 
 file = read_file(PATH)
