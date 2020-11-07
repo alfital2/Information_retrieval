@@ -150,6 +150,24 @@ def create_plot_of_words_occurrence_relative_to_tweets(word_count):
     plt.show()
 
 
+def create_plot_of_chars_amount_relative_to_tweets(letters_count):
+    unique_values_count = letters_count.value_counts().sort_index()
+    amount_of_chars, tweets_amount = [], []
+    threshold = 10  # Anything that occurs less than this will be removed.
+    to_remove = unique_values_count[unique_values_count <= threshold].index
+    for x, y in unique_values_count.items():
+        if x not in to_remove:
+            amount_of_chars.append(x)
+            tweets_amount.append(y)
+
+    # plt.xticks(unique_values_count.index)
+    plt.grid()
+    plt.xlabel("amount of letters in tweet")
+    plt.ylabel("amount of tweets")
+    plt.scatter(amount_of_chars, tweets_amount)
+    plt.show()
+
+
 def main():
     print("start")
     start_time = time.time()
@@ -169,6 +187,8 @@ def main():
     # twenty_most_common_words_in_data_frame = get_twenty_most_common_words(df)
     # creat_tile_for_twenty_most_common(twenty_most_common_words_in_data_frame)
     create_plot_of_words_occurrence_relative_to_tweets(df['word_count'])
+    create_plot_of_chars_amount_relative_to_tweets(df['letters_count'])
+
     print("--- %s seconds ---" % (time.time() - start_time))
 
 
