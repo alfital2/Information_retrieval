@@ -3,6 +3,9 @@ import pandas as pd
 from nltk.tokenize import TweetTokenizer
 import numpy as np
 from nltk.corpus import stopwords
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+
 
 PATH = "trainTwitter.csv"
 SLICE_LEN = 3
@@ -101,6 +104,14 @@ def apply_functions_over_data_frame(data_frame, tokenized_arr):
     return data_frame
 
 
+def creat_word_cloud(data):
+    all_text = "".join(str(word)+' ' for tweet in data for word in tweet)
+    word_cloud = WordCloud(background_color="white", collocations=False).generate(all_text)
+    plt.imshow(word_cloud, interpolation='bilinear')
+    plt.axis("off")
+    plt.show()
+
+
 def main():
     print("start")
     start_time = time.time()
@@ -110,6 +121,13 @@ def main():
     cleaned_file_from_unrecognized_chars = clean_unrecognized_chars(sliced_file_without_empty_cols)
     tokenized_data = get_tokenized_data_with_nltk_tokenizer(cleaned_file_from_unrecognized_chars)
     df = apply_functions_over_data_frame(cleaned_file_from_unrecognized_chars, tokenized_data)
+    print("--- %s seconds ---" % (time.time() - start_time))
+
+    print("visualization")
+    print("start")
+    start_time = time.time()
+    creat_word_cloud(tokenized_data)
+
     print("--- %s seconds ---" % (time.time() - start_time))
 
 
