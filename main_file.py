@@ -20,6 +20,13 @@ TASK3 = 2
 TASK4 = 3
 TASK5 = 4  # count upper-case words
 TASK6 = 5  # count special chars
+WORD_COUNT = 'word_count'
+LETTERS_COUNT = 'letters_count'
+AVG_LETTERS_COUNT = 'avg_letter_count'
+STOP_WORDS='stop_words'
+NUMERIC_CHARS = 'numeric_chars'
+UPPER_CASE_WORDS = 'upper_cases_words'
+SPECIAL_CHARS = 'special_chars'
 
 
 def read_file(path):
@@ -95,15 +102,14 @@ def count_numeric_chars(tokenized_arr, new_columns, index, task):
 
 def apply_functions_over_data_frame(data_frame, tokenized_arr):
     new_cols = use_tokenized_data_and_perform_operations(tokenized_arr)
-    data_frame['word_count'] = new_cols[TASK1]
-    data_frame['letters_count'] = new_cols[TASK2]
-    data_frame['avg_letter_count'] = new_cols[TASK3]
-    data_frame['stop_words'] = count_stop_words(data_frame)
-    data_frame['numeric_chars'] = new_cols[TASK4]
-    data_frame['upper_cases_words'] = new_cols[TASK5]
-    data_frame['special_chars'] = new_cols[TASK6]
+    data_frame[WORD_COUNT] = new_cols[TASK1]
+    data_frame[LETTERS_COUNT] = new_cols[TASK2]
+    data_frame[AVG_LETTERS_COUNT] = new_cols[TASK3]
+    data_frame[STOP_WORDS] = count_stop_words(data_frame)
+    data_frame[NUMERIC_CHARS] = new_cols[TASK4]
+    data_frame[UPPER_CASE_WORDS] = new_cols[TASK5]
+    data_frame[SPECIAL_CHARS] = new_cols[TASK6]
     return data_frame
-
 
 # --------------- VISUALIZATION PART:
 
@@ -168,6 +174,17 @@ def create_plot_of_chars_amount_relative_to_tweets(letters_count):
     plt.show()
 
 
+def create_plot_of_stop_words_amount_relative_to_tweets(stop_words):
+    amount_of_stop_words, tweets_amount = create_arrays_of_x_axis_and_y_axis(stop_words, 0)
+    plt.grid()
+    plt.xlabel("amount_of_stop_words in tweet")
+    plt.ylabel("amount of tweets")
+    plt.scatter(amount_of_stop_words, tweets_amount)
+    plt.show()
+
+
+
+
 def main():
     print("start")
     start_time = time.time()
@@ -186,10 +203,13 @@ def main():
     # creat_word_cloud(all_the_words_from_tweets_before_preprocess)
     # twenty_most_common_words_in_data_frame = get_twenty_most_common_words(df)
     # creat_tile_for_twenty_most_common(twenty_most_common_words_in_data_frame)
-    create_plot_of_words_occurrence_relative_to_tweets(df['word_count'])
-    create_plot_of_chars_amount_relative_to_tweets(df['letters_count'])
+    create_plot_of_words_occurrence_relative_to_tweets(df[WORD_COUNT])
+    create_plot_of_chars_amount_relative_to_tweets(df[LETTERS_COUNT])
+    create_plot_of_stop_words_amount_relative_to_tweets(df[STOP_WORDS])
+    create_plot_of_numeric_digits_amount_relative_to_tweets(df[NUMERIC_CHARS])
 
     print("--- %s seconds ---" % (time.time() - start_time))
+
 
 
 main()
