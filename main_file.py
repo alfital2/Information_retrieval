@@ -5,7 +5,8 @@ import numpy as np
 from nltk.corpus import stopwords
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
-
+from collections import Counter
+import squarify
 
 PATH = "trainTwitter.csv"
 SLICE_LEN = 3
@@ -104,11 +105,48 @@ def apply_functions_over_data_frame(data_frame, tokenized_arr):
     return data_frame
 
 
-def creat_word_cloud(data):
-    all_text = "".join(str(word)+' ' for tweet in data for word in tweet)
-    word_cloud = WordCloud(background_color="white", collocations=False).generate(all_text)
+# --------------- VISUALIZATION PART:
+
+def get_all_words_from_tweets_before_preprocess(data):
+    return "".join(str(word) + ' ' for tweet in data for word in tweet)
+
+
+def creat_word_cloud(words):
+    word_cloud = WordCloud(background_color="white", collocations=False).generate(words)
     plt.imshow(word_cloud, interpolation='bilinear')
     plt.axis("off")
+    plt.show()
+
+
+def get_twenty_most_common_words(data):
+    return Counter(" ".join(data["tweet"]).split()).most_common(20)
+
+
+def creat_tile_for_twenty_most_common(twenty_most_common):
+    volume = [x[1] for x in twenty_most_common]
+    labels = [x[0] for x in twenty_most_common]
+    color_list = ['#0f7216', '#b2790c', '#ffe9a3',
+                  '#f9d4d4', '#d35158', '#ea3033']
+    squarify.plot(sizes=volume, label=labels, color=color_list, alpha=0.7)
+    plt.show()
+
+
+def create_plot_of_words_occurrence_relative_to_tweets(word_count):
+    unique_values_count = word_count.value_counts().sort_index()
+    amount_of_words, tweets_amount = [], []
+    threshold = 10  # Anything that occurs less than this will be removed.
+    to_remove = unique_values_count[unique_values_count <= threshold].index
+
+    for x, y in unique_values_count.items():
+        if x not in to_remove:
+            amount_of_words.append(x)
+            tweets_amount.append(y)
+
+    plt.xticks(unique_values_count.index)
+    plt.grid()
+    plt.xlabel("amount of words in tweet")
+    plt.ylabel("amount of tweets")
+    plt.scatter(amount_of_words, tweets_amount)
     plt.show()
 
 
@@ -126,8 +164,11 @@ def main():
     print("visualization")
     print("start")
     start_time = time.time()
-    creat_word_cloud(tokenized_data)
-
+    # all_the_words_from_tweets_before_preprocess = get_all_words_from_tweets_before_preprocess(tokenized_data)
+    # creat_word_cloud(all_the_words_from_tweets_before_preprocess)
+    # twenty_most_common_words_in_data_frame = get_twenty_most_common_words(df)
+    # creat_tile_for_twenty_most_common(twenty_most_common_words_in_data_frame)
+    create_plot_of_words_occurrence_relative_to_tweets(df['word_count'])
     print("--- %s seconds ---" % (time.time() - start_time))
 
 
