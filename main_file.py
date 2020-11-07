@@ -131,8 +131,12 @@ def creat_tile_for_twenty_most_common(twenty_most_common):
     plt.show()
 
 
-def create_plot_of_words_occurrence_relative_to_tweets(word_count):
-    unique_values_count = word_count.value_counts().sort_index()
+def create_sorted_series_of_unique_values_counts(dataframe):
+    return dataframe.value_counts().sort_index()
+
+
+def create_arrays_of_x_axis_and_y_axis(values, threshold):
+    unique_values_count = create_sorted_series_of_unique_values_counts(values)
     amount_of_words, tweets_amount = [], []
     threshold = 10  # Anything that occurs less than this will be removed.
     to_remove = unique_values_count[unique_values_count <= threshold].index
@@ -142,7 +146,12 @@ def create_plot_of_words_occurrence_relative_to_tweets(word_count):
             amount_of_words.append(x)
             tweets_amount.append(y)
 
-    plt.xticks(unique_values_count.index)
+    return [amount_of_words, tweets_amount]
+
+
+def create_plot_of_words_occurrence_relative_to_tweets(word_count):
+    amount_of_words, tweets_amount = create_arrays_of_x_axis_and_y_axis(word_count, 10)
+    plt.xticks(amount_of_words)
     plt.grid()
     plt.xlabel("amount of words in tweet")
     plt.ylabel("amount of tweets")
@@ -151,20 +160,11 @@ def create_plot_of_words_occurrence_relative_to_tweets(word_count):
 
 
 def create_plot_of_chars_amount_relative_to_tweets(letters_count):
-    unique_values_count = letters_count.value_counts().sort_index()
-    amount_of_chars, tweets_amount = [], []
-    threshold = 10  # Anything that occurs less than this will be removed.
-    to_remove = unique_values_count[unique_values_count <= threshold].index
-    for x, y in unique_values_count.items():
-        if x not in to_remove:
-            amount_of_chars.append(x)
-            tweets_amount.append(y)
-
-    # plt.xticks(unique_values_count.index)
+    amount_of_letters, tweets_amount = create_arrays_of_x_axis_and_y_axis(letters_count, 0)
     plt.grid()
     plt.xlabel("amount of letters in tweet")
     plt.ylabel("amount of tweets")
-    plt.scatter(amount_of_chars, tweets_amount)
+    plt.scatter(amount_of_letters, tweets_amount)
     plt.show()
 
 
