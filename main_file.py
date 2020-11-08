@@ -23,7 +23,7 @@ TASK6 = 5  # count special chars
 WORD_COUNT = 'word_count'
 LETTERS_COUNT = 'letters_count'
 AVG_LETTERS_COUNT = 'avg_letter_count'
-STOP_WORDS='stop_words'
+STOP_WORDS = 'stop_words'
 NUMERIC_CHARS = 'numeric_chars'
 UPPER_CASE_WORDS = 'upper_cases_words'
 SPECIAL_CHARS = 'special_chars'
@@ -111,6 +111,7 @@ def apply_functions_over_data_frame(data_frame, tokenized_arr):
     data_frame[SPECIAL_CHARS] = new_cols[TASK6]
     return data_frame
 
+
 # --------------- VISUALIZATION PART:
 
 def get_all_words_from_tweets_before_preprocess(data):
@@ -124,8 +125,8 @@ def creat_word_cloud(words):
     plt.show()
 
 
-def get_twenty_most_common_words(data):
-    return Counter(" ".join(data["tweet"]).split()).most_common(20)
+def get_twenty_most_common_words(data,amount=20):
+    return Counter(" ".join(data[COLUMN]).split()).most_common(amount)
 
 
 def creat_tile_for_twenty_most_common(twenty_most_common):
@@ -141,10 +142,9 @@ def create_sorted_series_of_unique_values_counts(dataframe):
     return dataframe.value_counts().sort_index()
 
 
-def create_arrays_of_x_axis_and_y_axis(values, threshold):
+def create_arrays_of_x_axis_and_y_axis(values, threshold=0):
     unique_values_count = create_sorted_series_of_unique_values_counts(values)
     amount_of_words, tweets_amount = [], []
-    threshold = 10  # Anything that occurs less than this will be removed.
     to_remove = unique_values_count[unique_values_count <= threshold].index
 
     for x, y in unique_values_count.items():
@@ -177,12 +177,41 @@ def create_plot_of_chars_amount_relative_to_tweets(letters_count):
 def create_plot_of_stop_words_amount_relative_to_tweets(stop_words):
     amount_of_stop_words, tweets_amount = create_arrays_of_x_axis_and_y_axis(stop_words, 0)
     plt.grid()
-    plt.xlabel("amount_of_stop_words in tweet")
+    plt.xlabel("amount of stop words in tweet")
     plt.ylabel("amount of tweets")
     plt.scatter(amount_of_stop_words, tweets_amount)
     plt.show()
 
 
+def create_plot_of_numeric_digits_amount_relative_to_tweets(numeric_values):
+    amount_of_numeric_values, tweets_amount = create_arrays_of_x_axis_and_y_axis(numeric_values, 0)
+    plt.grid()
+    plt.xlabel("amount of numeric values in tweet")
+    plt.ylabel("amount of tweets")
+    plt.scatter(amount_of_numeric_values, tweets_amount)
+    plt.show()
+
+
+
+def show(dataframe):
+    offensive_tweets_dataframe = dataframe[(dataframe["label"] == 1)]
+    stop_words = set(stopwords.words('english'))
+    stop_words.add('@user')
+    offensive_tweets_dataframe['tweet'] = offensive_tweets_dataframe['tweet'].apply(lambda x:\
+        ' '.join([word for word in x.split() if word not in stop_words]))
+    offensive_tweets_dataframe = offensive_tweets_dataframe.replace(',', '', regex=True)
+    most_common_offensive_words = get_twenty_most_common_words(offensive_tweets_dataframe,10)
+    words = [x[0] for x in most_common_offensive_words]
+    frequency = [x[1] for x in most_common_offensive_words]
+
+    plt.rcdefaults()
+    fig, ax = plt.subplots()
+    ax.barh(words, frequency, align='center')
+    ax.invert_yaxis()  # labels read top-to-bottom
+    ax.set_xlabel('Performance')
+    ax.set_title('How fast do you want to go today?')
+
+    plt.show()
 
 
 def main():
@@ -203,13 +232,11 @@ def main():
     # creat_word_cloud(all_the_words_from_tweets_before_preprocess)
     # twenty_most_common_words_in_data_frame = get_twenty_most_common_words(df)
     # creat_tile_for_twenty_most_common(twenty_most_common_words_in_data_frame)
-    create_plot_of_words_occurrence_relative_to_tweets(df[WORD_COUNT])
-    create_plot_of_chars_amount_relative_to_tweets(df[LETTERS_COUNT])
-    create_plot_of_stop_words_amount_relative_to_tweets(df[STOP_WORDS])
-    create_plot_of_numeric_digits_amount_relative_to_tweets(df[NUMERIC_CHARS])
-
+    # create_plot_of_words_occurrence_relative_to_tweets(df[WORD_COUNT])
+    # create_plot_of_chars_amount_relative_to_tweets(df[LETTERS_COUNT])
+    # create_plot_of_stop_words_amount_relative_to_tweets(df[STOP_WORDS])
+    show(df)
     print("--- %s seconds ---" % (time.time() - start_time))
-
 
 
 main()
