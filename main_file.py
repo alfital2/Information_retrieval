@@ -125,7 +125,7 @@ def creat_word_cloud(words):
     plt.show()
 
 
-def get_twenty_most_common_words(data,amount=20):
+def get_twenty_most_common_words(data, amount=20):
     return Counter(" ".join(data[COLUMN]).split()).most_common(amount)
 
 
@@ -175,7 +175,7 @@ def create_plot_of_chars_amount_relative_to_tweets(letters_count):
 
 
 def create_plot_of_stop_words_amount_relative_to_tweets(stop_words):
-    amount_of_stop_words, tweets_amount = create_arrays_of_x_axis_and_y_axis(stop_words, 0)
+    amount_of_stop_words, tweets_amount = create_arrays_of_x_axis_and_y_axis(stop_words)
     plt.grid()
     plt.xlabel("amount of stop words in tweet")
     plt.ylabel("amount of tweets")
@@ -184,7 +184,7 @@ def create_plot_of_stop_words_amount_relative_to_tweets(stop_words):
 
 
 def create_plot_of_numeric_digits_amount_relative_to_tweets(numeric_values):
-    amount_of_numeric_values, tweets_amount = create_arrays_of_x_axis_and_y_axis(numeric_values, 0)
+    amount_of_numeric_values, tweets_amount = create_arrays_of_x_axis_and_y_axis(numeric_values, 5)
     plt.grid()
     plt.xlabel("amount of numeric values in tweet")
     plt.ylabel("amount of tweets")
@@ -192,15 +192,21 @@ def create_plot_of_numeric_digits_amount_relative_to_tweets(numeric_values):
     plt.show()
 
 
+def get_offensive_tweets_data_frame(dataframe, stop_words, val=1):
+    offensive_tweets_dataframe = dataframe[(dataframe["label"] == val)]
+    offensive_tweets_dataframe['tweet'] = offensive_tweets_dataframe['tweet'].apply(lambda x: \
+                                                                                        ' '.join(
+                                                                                            [word for word in x.split()
+                                                                                             if
+                                                                                             word not in stop_words]))
+    return offensive_tweets_dataframe.replace(',', '', regex=True)
 
-def show(dataframe):
-    offensive_tweets_dataframe = dataframe[(dataframe["label"] == 1)]
+
+def create_histogram_to_show_most_offensive_words(dataframe):
     stop_words = set(stopwords.words('english'))
     stop_words.add('@user')
-    offensive_tweets_dataframe['tweet'] = offensive_tweets_dataframe['tweet'].apply(lambda x:\
-        ' '.join([word for word in x.split() if word not in stop_words]))
-    offensive_tweets_dataframe = offensive_tweets_dataframe.replace(',', '', regex=True)
-    most_common_offensive_words = get_twenty_most_common_words(offensive_tweets_dataframe,10)
+    offensive_tweets_dataframe = get_offensive_tweets_data_frame(dataframe, stop_words)
+    most_common_offensive_words = get_twenty_most_common_words(offensive_tweets_dataframe, 10)
     words = [x[0] for x in most_common_offensive_words]
     frequency = [x[1] for x in most_common_offensive_words]
 
@@ -208,10 +214,23 @@ def show(dataframe):
     fig, ax = plt.subplots()
     ax.barh(words, frequency, align='center')
     ax.invert_yaxis()  # labels read top-to-bottom
-    ax.set_xlabel('Performance')
-    ax.set_title('How fast do you want to go today?')
-
     plt.show()
+
+
+def create_plot_to_compare_offensive_tweets_to_no_offensive(dataframe):
+    stop_words = set(stopwords.words('english'))
+    stop_words.add('@user')
+    offensive_tweets_dataframe = get_offensive_tweets_data_frame(dataframe, stop_words)
+    regular_dataframe = get_offensive_tweets_data_frame(dataframe, stop_words, 0)
+    avg_offensive = (offensive_tweets_dataframe[WORD_COUNT].sum())/len(offensive_tweets_dataframe)
+    avg_regular = (regular_dataframe[WORD_COUNT].sum())/len(regular_dataframe)
+    fig, ax = plt.subplots()
+    x = ['offensive','non offensive']
+    y = [avg_offensive, avg_regular]
+    ax.bar(x, y)
+    plt.show()
+
+# -------------------------------------- End of visualization
 
 
 def main():
@@ -235,7 +254,9 @@ def main():
     # create_plot_of_words_occurrence_relative_to_tweets(df[WORD_COUNT])
     # create_plot_of_chars_amount_relative_to_tweets(df[LETTERS_COUNT])
     # create_plot_of_stop_words_amount_relative_to_tweets(df[STOP_WORDS])
-    show(df)
+    # create_plot_of_numeric_digits_amount_relative_to_tweets(df[NUMERIC_CHARS])
+    # create_histogram_to_show_most_offensive_words(df)
+    create_plot_to_compare_offensive_tweets_to_no_offensive(df)
     print("--- %s seconds ---" % (time.time() - start_time))
 
 
