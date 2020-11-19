@@ -1,5 +1,6 @@
 import time
 import pandas as pd
+from nltk import LancasterStemmer
 from nltk.tokenize import TweetTokenizer
 import numpy as np
 from nltk.corpus import stopwords
@@ -252,28 +253,37 @@ def correct_spelling(tokenized_data):
     copy_tokenized_arr = copy.deepcopy(tokenized_data)
 
     for array in copy_tokenized_arr:
-        tmp = []
         for word in array:
             correct_word = Word(word).correct()
             if word != correct_word:
-                print(array)
                 array.remove(word)
                 array.append(correct_word)
-                print(array)
 
     return copy_tokenized_arr
 
 
+def lemmatize_tokens(tokenized_data):
+    copy_tokenized_arr = copy.deepcopy(tokenized_data)
+    for array in copy_tokenized_arr:
+        for word in array:
+            lemma = Word(word).lemmatize()
+            array.remove(word)
+            array.append(lemma)
+
+    return copy_tokenized_arr
+
+
+
 def main():
-    print("start")
-    start_time = time.time()
-    file = read_file(PATH)
-    file_copy = create_copy_of_file(file)
-    sliced_file_without_empty_cols = slice_the_data_frame(file_copy)
-    cleaned_file_from_unrecognized_chars = clean_unrecognized_chars(sliced_file_without_empty_cols)
-    tokenized_data = get_tokenized_data_with_nltk_tokenizer(cleaned_file_from_unrecognized_chars)
-    df = apply_functions_over_data_frame(cleaned_file_from_unrecognized_chars, tokenized_data)
-    df.to_csv("processed.csv")
+    # print("start")
+    # start_time = time.time()
+    # file = read_file(PATH)
+    # file_copy = create_copy_of_file(file)
+    # sliced_file_without_empty_cols = slice_the_data_frame(file_copy)
+    # cleaned_file_from_unrecognized_chars = clean_unrecognized_chars(sliced_file_without_empty_cols)
+    # tokenized_data = get_tokenized_data_with_nltk_tokenizer(cleaned_file_from_unrecognized_chars)
+    # df = apply_functions_over_data_frame(cleaned_file_from_unrecognized_chars, tokenized_data)
+    # df.to_csv("processed.csv")
     # print("--- %s seconds ---" % (time.time() - start_time))
 
     # print("visualization")
@@ -292,8 +302,23 @@ def main():
     # print("--- %s seconds ---" % (time.time() - start_time))
 
     # ------------------------------------------------------------------------------------------- lab1 ends here
-    cleaned_tokens_array = clean_word_from_tokens_array(tokenized_data, '@user') # all the token array without 'user'
-    cleaned_tokens_10_tweets = cleaned_tokens_array[0:10]
-    spell_correct_tokens = correct_spelling(cleaned_tokens_10_tweets)
+    # cleaned_tokens_array = clean_word_from_tokens_array(tokenized_data, '@user') # all the token array without 'user'
+    # cleaned_tokens_10_tweets = cleaned_tokens_array[0:10]
+    # spell_correct_tokens = correct_spelling(cleaned_tokens_10_tweets)
+    spell_correct_tokens = [list(['when', 'a', 'father', 'is', 'dysfunctional', 'and', 'is', 'so', 'selfish', 'he', 'drags', 'his', 'into', 'his', 'dysfunction', 'kiss', 'run']),
+                             list(['thanks', 'for', 'credit', 'i', 'use', 'cause', 'they', 'offer', 'wheelchair', 'in', '#disapointed', '#getthanked', 'left', 'canst', 'dont', 'van', 'pox']),
+                             list(['your', 'majesty', 'midday']),
+                             list(['i', 'love', 'u', 'take', 'with', 'u', 'all', 'the', 'time', 'in', '0000', '000', 'model', 'urge']),
+                             list(['factsguide', 'society', 'now', 'motivation']),
+                             list(['22', 'huge', 'fan', 'fare', 'and', 'big', 'talking', 'before', 'they', 'leave', 'chaos', 'and', 'pay', 'disputes', 'when', 'they', 'get', 'there', '#allshowandnogo']),
+                             list(['camping', 'tomorrow', 'dandy']),
+                             list(['the', 'next', 'school', 'year', 'is', 'the', 'year', 'for', '0', 'think', 'about', 'that', '0', 'school', '#hate', '#actorslife', '#revolutionschool', 'exam', 'canst', 'texas', 'imagine', 'girl']),
+                             list(['we', 'won', '!', '!', '!', 'love', 'the', 'land', '!', '!', '!', '#cavs', '#cleveland', '#clevelandcavaliers', 'fallen', 'champions']),
+                             list(['welcome', 'here', '!', "it's", 'so', '!', 'ism', 'grm'])]
+    ### !!!! TO SAVE TIME WE WILL USE THIS ARRAY : !!!
+
+    lemmatized_tokens = lemmatize_tokens(spell_correct_tokens)
+    stemmed_tokens = stem_the_tokens(lemmatized_tokens)
+    print(stemmed_tokens)
 
 main()
