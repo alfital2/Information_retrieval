@@ -3,6 +3,7 @@ import pandas as pd
 from nltk.tokenize import TweetTokenizer
 import numpy as np
 from nltk.corpus import stopwords
+from textblob import Word
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from collections import Counter
@@ -246,6 +247,23 @@ def clean_word_from_tokens_array(tokenized_data, word_to_remove):
                 array.remove(word_to_remove)
     return copy_tokenized_arr
 
+
+def correct_spelling(tokenized_data):
+    copy_tokenized_arr = copy.deepcopy(tokenized_data)
+
+    for array in copy_tokenized_arr:
+        tmp = []
+        for word in array:
+            correct_word = Word(word).correct()
+            if word != correct_word:
+                print(array)
+                array.remove(word)
+                array.append(correct_word)
+                print(array)
+
+    return copy_tokenized_arr
+
+
 def main():
     print("start")
     start_time = time.time()
@@ -275,6 +293,7 @@ def main():
 
     # ------------------------------------------------------------------------------------------- lab1 ends here
     cleaned_tokens_array = clean_word_from_tokens_array(tokenized_data, '@user') # all the token array without 'user'
-
+    cleaned_tokens_10_tweets = cleaned_tokens_array[0:10]
+    spell_correct_tokens = correct_spelling(cleaned_tokens_10_tweets)
 
 main()
