@@ -273,6 +273,16 @@ def lemmatize_tokens(tokenized_data):
     return copy_tokenized_arr
 
 
+def stem_the_tokens(tokenized_data):
+    copy_tokenized_arr = copy.deepcopy(tokenized_data)
+    st = LancasterStemmer()
+    for array in copy_tokenized_arr:
+        for word in array:
+            stemmed = st.stem(word)
+            array.remove(word)
+            array.append(stemmed)
+
+    return copy_tokenized_arr
 
 def main():
     # print("start")
