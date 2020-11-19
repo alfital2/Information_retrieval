@@ -13,7 +13,7 @@ import copy
 
 PATH = "trainTwitter.csv"
 SLICE_LEN = 4
-REGEX = r'[^a-zA-Z0-9@#!,\'\s]+|X{2,}|[,]'
+REGEX = r'[^a-zA-Z0-9@#!,\'\s]+|X{2,}|[,]|[!]'
 COLUMN = 'tweet'
 SPECIAL_CHARS = ('@', '#', '!')
 AMOUNT_OF_TASKS = 6
@@ -238,6 +238,34 @@ def create_plot_to_compare_offensive_tweets_to_no_offensive(dataframe):
 
 
 # ------------------------------------------ lab 2
+def lemmatize(array, word):
+    lemma = Word(word).lemmatize()
+    array.remove(word)
+    array.append(lemma)
+
+
+def correct_spelling(array, word):
+    correct_word = Word(word).correct()
+    if word != correct_word:
+        array.remove(word)
+        array.append(correct_word)
+
+
+def stem(array, word):
+    stemmed = LancasterStemmer().stem(word)
+    array.remove(word)
+    array.append(stemmed)
+
+
+def process_tokens_by_operation(tokenized_data, func):
+    copy_tokenized_arr = copy.deepcopy(tokenized_data)
+
+    for array in copy_tokenized_arr:
+        for word in list(array):
+            func(array, word)
+
+    return copy_tokenized_arr
+
 
 def clean_word_from_tokens_array(tokenized_data, word_to_remove):
     copy_tokenized_arr = copy.deepcopy(tokenized_data)
@@ -250,51 +278,14 @@ def clean_word_from_tokens_array(tokenized_data, word_to_remove):
     return copy_tokenized_arr
 
 
-def correct_spelling(tokenized_data):
-    copy_tokenized_arr = copy.deepcopy(tokenized_data)
-
-    for array in copy_tokenized_arr:
-        for word in array:
-            correct_word = Word(word).correct()
-            if word != correct_word:
-                array.remove(word)
-                array.append(correct_word)
-
-    return copy_tokenized_arr
-
-
-def lemmatize_tokens(tokenized_data):
-    copy_tokenized_arr = copy.deepcopy(tokenized_data)
-    for array in copy_tokenized_arr:
-        for word in array:
-            lemma = Word(word).lemmatize()
-            array.remove(word)
-            array.append(lemma)
-
-    return copy_tokenized_arr
-
-
-def stem_the_tokens(tokenized_data):
-    copy_tokenized_arr = copy.deepcopy(tokenized_data)
-    st = LancasterStemmer()
-    for array in copy_tokenized_arr:
-        for word in array:
-            stemmed = st.stem(word)
-            array.remove(word)
-            array.append(stemmed)
-
-    return copy_tokenized_arr
-
-
-
 def main():
     # print("start")
     # start_time = time.time()
-    file = read_file(PATH)
-    file_copy = create_copy_of_file(file)
-    sliced_file_without_empty_cols = slice_the_data_frame(file_copy)
-    cleaned_file_from_unrecognized_chars = clean_unrecognized_chars(sliced_file_without_empty_cols)
-    tokenized_data = get_tokenized_data_with_nltk_tokenizer(cleaned_file_from_unrecognized_chars)
+    # file = read_file(PATH)
+    # file_copy = create_copy_of_file(file)
+    # sliced_file_without_empty_cols = slice_the_data_frame(file_copy)
+    # cleaned_file_from_unrecognized_chars = clean_unrecognized_chars(sliced_file_without_empty_cols)
+    # tokenized_data = get_tokenized_data_with_nltk_tokenizer(cleaned_file_from_unrecognized_chars)
     # df = apply_functions_over_data_frame(cleaned_file_from_unrecognized_chars, tokenized_data)
     # df.to_csv("processed.csv")
     # print("--- %s seconds ---" % (time.time() - start_time))
@@ -314,26 +305,27 @@ def main():
     # create_plot_to_compare_offensive_tweets_to_no_offensive(df)
     # print("--- %s seconds ---" % (time.time() - start_time))
 
-    # ------------------------------------------------------------------------------------------- lab1 ends here
+    #------------------------------------------------------------------------------------------- lab1 ends here
 
-    cleaned_tokens_array = clean_word_from_tokens_array(tokenized_data, '@user') # all the token array without 'user'
-    print(cleaned_tokens_array[:10])
+    # cleaned_tokens_array = clean_word_from_tokens_array(tokenized_data, '@user') # all the token array without 'user'
     # cleaned_tokens_10_tweets   = cleaned_tokens_array[0:10]
-    # # spell_correct_tokens = correct_spelling(cleaned_tokens_10_tweets)
-    # spell_correct_tokens = [list(['when', 'a', 'father', 'is', 'dysfunctional', 'and', 'is', 'so', 'selfish', 'he', 'drags', 'his', 'into', 'his', 'dysfunction', 'kiss', 'run']),
-    #                          list(['thanks', 'for', 'credit', 'i', 'use', 'cause', 'they', 'offer', 'wheelchair', 'in', '#disapointed', '#getthanked', 'left', 'canst', 'dont', 'van', 'pox']),
-    #                          list(['your', 'majesty', 'midday']),
-    #                          list(['i', 'love', 'u', 'take', 'with', 'u', 'all', 'the', 'time', 'in', '0000', '000', 'model', 'urge']),
-    #                          list(['factsguide', 'society', 'now', 'motivation']),
-    #                          list(['22', 'huge', 'fan', 'fare', 'and', 'big', 'talking', 'before', 'they', 'leave', 'chaos', 'and', 'pay', 'disputes', 'when', 'they', 'get', 'there', '#allshowandnogo']),
-    #                          list(['camping', 'tomorrow', 'dandy']),
-    #                          list(['the', 'next', 'school', 'year', 'is', 'the', 'year', 'for', '0', 'think', 'about', 'that', '0', 'school', '#hate', '#actorslife', '#revolutionschool', 'exam', 'canst', 'texas', 'imagine', 'girl']),
-    #                          list(['we', 'won', '!', '!', '!', 'love', 'the', 'land', '!', '!', '!', '#cavs', '#cleveland', '#clevelandcavaliers', 'fallen', 'champions']),
-    #                          list(['welcome', 'here', '!', "it's", 'so', '!', 'ism', 'grm'])]
-    # ### !!!! TO SAVE TIME WE WILL USE THIS ARRAY : !!!
-    #
-    # lemmatized_tokens = lemmatize_tokens(spell_correct_tokens)
-    # stemmed_tokens = stem_the_tokens(lemmatized_tokens)
-    # print(stemmed_tokens)
+    # spell_correct_tokens = process_tokens_by_operation(cleaned_tokens_10_tweets,correct_spelling)
+
+    spell_correct_tokens = [list(['when', 'a', 'fath', 'is', 'dysfunct', 'and', 'is', 'so', 'self', 'he', 'drag', 'his', 'into', 'his', 'dysfunct', 'kiss', 'run']),
+     list(['thank', 'for', 'credit', 'i', 'us', 'caus', 'they', 'off', 'wheelchair', 'in', '#getthanked', 'left', 'canst', 'dont', 'van', 'pox', 'disappoint']),
+     list(['yo', 'majesty', 'midday']),
+     list(['i', 'lov', 'u', 'tak', 'with', 'u', 'al', 'the', 'tim', 'in', '0000', '000', 'model', 'urg']),
+     list(['factsguid', 'socy', 'now', 'mot']),
+     list(['22', 'hug', 'fan', 'far', 'and', 'big', 'talk', 'bef', 'they', 'leav', 'chao', 'and', 'pay', 'disput', 'when', 'they', 'get', 'ther', '#allshowandnogo']),
+     list(['camp', 'tomorrow', 'dandy']),
+     list(['the', 'next', 'school', 'year', 'is', 'the', 'year', 'for', '0', 'think', 'about', 'that', '0', 'school', '#actorslife', '#revolutionschool', 'exam', 'canst', 'texa', 'hat', 'imagin', 'girl']),
+     list(['we', 'won', 'lov', 'the', 'land', '#clevelandcavaliers', 'fal', 'scar', 'champ', 'cleveland']),
+     list(['welcom', 'her', 'so', 'ism', 'it', 'grm'])]
+    ### !!!! TO SAVE TIME WE WILL USE THIS ARRAY : !!!
+
+    lemmatized_tokens = process_tokens_by_operation(spell_correct_tokens,lemmatize)
+    stemmed_tokens = process_tokens_by_operation(lemmatized_tokens,stem)
+    print(stemmed_tokens)
+
 
 main()
