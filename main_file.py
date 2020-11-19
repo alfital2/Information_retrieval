@@ -7,10 +7,11 @@ from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from collections import Counter
 import squarify
+import copy
 
 PATH = "trainTwitter.csv"
-SLICE_LEN = 3
-REGEX = r'[^a-zA-Z0-9@#!,\'\s]+|X{2,}'
+SLICE_LEN = 4
+REGEX = r'[^a-zA-Z0-9@#!,\'\s]+|X{2,}|[,]'
 COLUMN = 'tweet'
 SPECIAL_CHARS = ('@', '#', '!')
 AMOUNT_OF_TASKS = 6
@@ -29,8 +30,8 @@ UPPER_CASE_WORDS = 'upper_cases_words'
 SPECIAL_CHARS = 'special_chars'
 
 
-def read_file(path):
-    file_csv = pd.read_csv(PATH, encoding='latin-1')
+def read_file(path=PATH):
+    file_csv = pd.read_csv(path, encoding='latin-1')
     return file_csv
 
 
@@ -222,16 +223,28 @@ def create_plot_to_compare_offensive_tweets_to_no_offensive(dataframe):
     stop_words.add('@user')
     offensive_tweets_dataframe = get_offensive_tweets_data_frame(dataframe, stop_words)
     regular_dataframe = get_offensive_tweets_data_frame(dataframe, stop_words, 0)
-    avg_offensive = (offensive_tweets_dataframe[WORD_COUNT].sum())/len(offensive_tweets_dataframe)
-    avg_regular = (regular_dataframe[WORD_COUNT].sum())/len(regular_dataframe)
+    avg_offensive = (offensive_tweets_dataframe[WORD_COUNT].sum()) / len(offensive_tweets_dataframe)
+    avg_regular = (regular_dataframe[WORD_COUNT].sum()) / len(regular_dataframe)
     fig, ax = plt.subplots()
-    x = ['offensive','non offensive']
+    x = ['offensive', 'non offensive']
     y = [avg_offensive, avg_regular]
     ax.bar(x, y)
     plt.show()
 
+
 # -------------------------------------- End of visualization
 
+
+# ------------------------------------------ lab 2
+
+def clean_word_from_tokens_array(tokenized_data, word_to_remove):
+    copy_tokenized_arr = copy.deepcopy(tokenized_data)
+    for array in copy_tokenized_arr:
+        tmp = np.array(array, copy=True)
+        for word in tmp:
+            if word == word_to_remove:
+                array.remove(word_to_remove)
+    return copy_tokenized_arr
 
 def main():
     print("start")
@@ -242,22 +255,26 @@ def main():
     cleaned_file_from_unrecognized_chars = clean_unrecognized_chars(sliced_file_without_empty_cols)
     tokenized_data = get_tokenized_data_with_nltk_tokenizer(cleaned_file_from_unrecognized_chars)
     df = apply_functions_over_data_frame(cleaned_file_from_unrecognized_chars, tokenized_data)
-    print("--- %s seconds ---" % (time.time() - start_time))
+    df.to_csv("processed.csv")
+    # print("--- %s seconds ---" % (time.time() - start_time))
 
-    print("visualization")
-    print("start")
-    start_time = time.time()
-    all_the_words_from_tweets_before_preprocess = get_all_words_from_tweets_before_preprocess(tokenized_data)
-    creat_word_cloud(all_the_words_from_tweets_before_preprocess)
-    twenty_most_common_words_in_data_frame = get_twenty_most_common_words(df)
-    creat_tile_for_twenty_most_common(twenty_most_common_words_in_data_frame)
-    create_plot_of_words_occurrence_relative_to_tweets(df[WORD_COUNT])
-    create_plot_of_chars_amount_relative_to_tweets(df[LETTERS_COUNT])
-    create_plot_of_stop_words_amount_relative_to_tweets(df[STOP_WORDS])
-    create_plot_of_numeric_digits_amount_relative_to_tweets(df[NUMERIC_CHARS])
-    create_histogram_to_show_most_offensive_words(df)
-    create_plot_to_compare_offensive_tweets_to_no_offensive(df)
-    print("--- %s seconds ---" % (time.time() - start_time))
+    # print("visualization")
+    # print("start")
+    # start_time = time.time()
+    # all_the_words_from_tweets_before_preprocess = get_all_words_from_tweets_before_preprocess(tokenized_data)
+    # creat_word_cloud(all_the_words_from_tweets_before_preprocess)
+    # twenty_most_common_words_in_data_frame = get_twenty_most_common_words(df)
+    # creat_tile_for_twenty_most_common(twenty_most_common_words_in_data_frame)
+    # create_plot_of_words_occurrence_relative_to_tweets(df[WORD_COUNT])
+    # create_plot_of_chars_amount_relative_to_tweets(df[LETTERS_COUNT])
+    # create_plot_of_stop_words_amount_relative_to_tweets(df[STOP_WORDS])
+    # create_plot_of_numeric_digits_amount_relative_to_tweets(df[NUMERIC_CHARS])
+    # create_histogram_to_show_most_offensive_words(df)
+    # create_plot_to_compare_offensive_tweets_to_no_offensive(df)
+    # print("--- %s seconds ---" % (time.time() - start_time))
+
+    # ------------------------------------------------------------------------------------------- lab1 ends here
+    cleaned_tokens_array = clean_word_from_tokens_array(tokenized_data, '@user') # all the token array without 'user'
 
 
 main()
