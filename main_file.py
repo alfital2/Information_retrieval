@@ -11,9 +11,11 @@ from collections import Counter
 import squarify
 import copy
 
+from data import hundred_correct_spelled_words
+
 PATH = "trainTwitter.csv"
 SLICE_LEN = 4
-REGEX = r'[^a-zA-Z0-9@#!,\'\s]+|X{2,}|[,]|[!]'
+REGEX = r'[^a-zA-Z0-9@#!,\'\s]+|X{2,}'
 COLUMN = 'tweet'
 SPECIAL_CHARS = ('@', '#', '!')
 AMOUNT_OF_TASKS = 6
@@ -278,6 +280,33 @@ def clean_word_from_tokens_array(tokenized_data, word_to_remove):
     return copy_tokenized_arr
 
 
+def create_dict_of_words(tokenized_data):
+    my_dict = dict()
+
+    for number_of_array in range(len(tokenized_data)):
+        for word in tokenized_data[number_of_array]:
+            if word not in my_dict:
+                my_dict[word] = []
+            if number_of_array not in my_dict[word]:
+                my_dict[word].append(number_of_array)
+
+    return my_dict
+
+
+def print_pretty(dictionary):
+    for k, v in dictionary.items():
+        print(k, v)
+
+
+# this function return ONLY the column where it has to remove the stop words.
+def remove_stop_words_for_column(df, col):
+    stop_words = set(stopwords.words('english'))
+    stop_words.add('@user')
+    df = df[df[col].notnull()]
+    df[COLUMN] = df[COLUMN].apply(lambda x: ' '.join([word for word in x.split() if word not in stop_words]))
+    return df
+
+
 def main():
     # print("start")
     # start_time = time.time()
@@ -305,27 +334,21 @@ def main():
     # create_plot_to_compare_offensive_tweets_to_no_offensive(df)
     # print("--- %s seconds ---" % (time.time() - start_time))
 
-    #------------------------------------------------------------------------------------------- lab1 ends here
-
-    # cleaned_tokens_array = clean_word_from_tokens_array(tokenized_data, '@user') # all the token array without 'user'
-    # cleaned_tokens_10_tweets   = cleaned_tokens_array[0:10]
-    # spell_correct_tokens = process_tokens_by_operation(cleaned_tokens_10_tweets,correct_spelling)
-
-    spell_correct_tokens = [list(['when', 'a', 'fath', 'is', 'dysfunct', 'and', 'is', 'so', 'self', 'he', 'drag', 'his', 'into', 'his', 'dysfunct', 'kiss', 'run']),
-     list(['thank', 'for', 'credit', 'i', 'us', 'caus', 'they', 'off', 'wheelchair', 'in', '#getthanked', 'left', 'canst', 'dont', 'van', 'pox', 'disappoint']),
-     list(['yo', 'majesty', 'midday']),
-     list(['i', 'lov', 'u', 'tak', 'with', 'u', 'al', 'the', 'tim', 'in', '0000', '000', 'model', 'urg']),
-     list(['factsguid', 'socy', 'now', 'mot']),
-     list(['22', 'hug', 'fan', 'far', 'and', 'big', 'talk', 'bef', 'they', 'leav', 'chao', 'and', 'pay', 'disput', 'when', 'they', 'get', 'ther', '#allshowandnogo']),
-     list(['camp', 'tomorrow', 'dandy']),
-     list(['the', 'next', 'school', 'year', 'is', 'the', 'year', 'for', '0', 'think', 'about', 'that', '0', 'school', '#actorslife', '#revolutionschool', 'exam', 'canst', 'texa', 'hat', 'imagin', 'girl']),
-     list(['we', 'won', 'lov', 'the', 'land', '#clevelandcavaliers', 'fal', 'scar', 'champ', 'cleveland']),
-     list(['welcom', 'her', 'so', 'ism', 'it', 'grm'])]
-    ### !!!! TO SAVE TIME WE WILL USE THIS ARRAY : !!!
-
-    lemmatized_tokens = process_tokens_by_operation(spell_correct_tokens,lemmatize)
-    stemmed_tokens = process_tokens_by_operation(lemmatized_tokens,stem)
-    print(stemmed_tokens)
+    # ------------------------------------------------------------------------------------------- lab1 ends here
+    # file = read_file('processed.csv')
+    # df_without_stop_words = remove_stop_words_for_column(file, COLUMN)
+    # tokenized_data = get_tokenized_data_with_nltk_tokenizer(df_without_stop_words)
+    # cleaned_tokens_array = clean_word_from_tokens_array(tokenized_data, '@user')  # all the token array without 'user'
+    # cleaned_tokens_10_tweets = cleaned_tokens_array[0:100]
+    # spell_correct_tokens = process_tokens_by_operation(cleaned_tokens_10_tweets, correct_spelling)
+    #
+    spell_correct_tokens = hundred_correct_spelled_words
+    # # ### !!!! TO SAVE TIME WE WILL USE THIS ARRAY : !!!
+    # #
+    lemmatized_tokens = process_tokens_by_operation(spell_correct_tokens, lemmatize)
+    stemmed_tokens = process_tokens_by_operation(lemmatized_tokens, stem)
+    dict_of_words = create_dict_of_words(stemmed_tokens)
+    print_pretty(dict_of_words)
 
 
 main()
