@@ -1,3 +1,11 @@
+five_correct_spelled_words = [list(['father', 'dysfunctional', 'selfish', 'drags', 'kids', 'dysfunction', '#run']),
+                                 list(['thanks', '#lyft', 'credit', "can't", 'use', 'cause', 'offer', 'wheelchair',
+                                       'vans', 'pdx', '#disapointed', '#getthanked']),
+                                 list(['bihday', 'majesty']),
+                                 list(['listening', 'sad', 'songs', 'monday', 'morning', 'otw', 'work', 'sad']),
+                                 list(['#sikh', '#temple', 'vandalised', '#calgary', ',', '#wso', 'condemns', 'act'])
+                                 ]
+
 hundred_correct_spelled_words = [list(['father', 'dysfunctional', 'selfish', 'drags', 'kids', 'dysfunction', '#run']),
                                  list(['thanks', '#lyft', 'credit', "can't", 'use', 'cause', 'offer', 'wheelchair',
                                        'vans', 'pdx', '#disapointed', '#getthanked']),

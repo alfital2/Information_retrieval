@@ -11,7 +11,7 @@ from collections import Counter
 import squarify
 import copy
 
-from data import hundred_correct_spelled_words
+from data import hundred_correct_spelled_words, five_correct_spelled_words
 
 PATH = "trainTwitter.csv"
 SLICE_LEN = 4
@@ -307,6 +307,21 @@ def remove_stop_words_for_column(df, col):
     return df
 
 
+def create_dict_with_frequencies(tokenized_data):
+    my_dict = dict()
+
+    for tweet_number in range(len(tokenized_data)):
+        for word in tokenized_data[tweet_number]:
+            if word not in my_dict:
+                my_dict[word] = []
+            frequency_for_tweet = {'tweet number': tweet_number, 'frequency': tokenized_data[tweet_number].count(word)}
+            if frequency_for_tweet not in my_dict[word]:
+                my_dict[word].append(frequency_for_tweet)
+
+    return my_dict
+    pass
+
+
 def main():
     # print("start")
     # start_time = time.time()
@@ -348,7 +363,10 @@ def main():
     lemmatized_tokens = process_tokens_by_operation(spell_correct_tokens, lemmatize)
     stemmed_tokens = process_tokens_by_operation(lemmatized_tokens, stem)
     dict_of_words = create_dict_of_words(stemmed_tokens)
-    print_pretty(dict_of_words)
+    # print(stemmed_tokens)
+    # print_pretty(dict_of_words)
+    dict_with_freq = create_dict_with_frequencies(stemmed_tokens)
+    print_pretty(dict_with_freq)
 
 
 main()
